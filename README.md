@@ -4,3 +4,7 @@
 3. D'Riski Maulana (2008149) <br>
 4. Alvin Giovani (2003721) <br>
 5. Novaldi Sandi Ago (2003941) <br>
+
+# TAMBAHAN
+* Multiproses, bukan jumlah array yang di hardcode
+* fork dilakukan berkali-kali
