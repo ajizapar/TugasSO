@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include<sys/wait.h>
 
 #include<time.h> 
 
@@ -14,13 +15,22 @@ int main(int argc, char const *argv[])
     int fd[2]; // pipe
     int jumlahProses;
 
+    int jumlahProducer;
+    int jumlahKonsumer;
+
 
     // create pipe
     if(pipe(fd) < 0){
         exit(1);
     }
+    int pidWait, pidWait2, status, status2;
+    int i = 0;
 
+    printf("Masukkan jumlah producer: ");
+    scanf("%d", &jumlahProducer);
 
+    printf("Masukkan jumlah konsumer: ");
+    scanf("%d", &jumlahKonsumer);
 
     printf("mulai\n");
 
@@ -30,40 +40,42 @@ int main(int argc, char const *argv[])
         printf("proses anak\n");
         // tutup bagian input dari pipe
         close(fd[0]);
-            scanf("%d", &jumlahProses);
 
         // tulis ke pipe
         srand(time(0));
-        int randomNumberBuffer[sizeof(jumlahProses) + 1];
-        for (int i = 0; i < jumlahProses; i++)
+        int randomNumberBuffer[MSGSIZE];
+        for (i = 0; i < jumlahProducer; i++)
         {
+            fork();
             randomNumberBuffer[i] = rand() % (50 + 1 - 0) + 0;
-            printf("proses anak menulis %d\n", randomNumberBuffer[i]);
+            printf("%d. (prod) pid= %d, parent= %d, tulis= %d\n",i, getpid(), getppid(), randomNumberBuffer[i]);
         }
+
+       
         write(fd[1], randomNumberBuffer, sizeof(randomNumberBuffer));
 
-        
 
         break;
     default: // fork return pid ke proses ortu
 
-        printf("proses ortu\n");
         // tutup bagian output dari pipe
         close(fd[1]);
-        scanf("%d", &jumlahProses);
 
         // baca yang ditulis child dari pipe
-        int addChildNumber[sizeof(jumlahProses) + 1];
+        int addChildNumber[MSGSIZE];
 
         read(fd[0], addChildNumber, sizeof(addChildNumber));
         int jumlahNumber = 0;
-        for (int i = 0; i < jumlahProses; i++)
+        int status;
+        for (int i = 0; i < jumlahKonsumer; i++)
         {
+            fork();
+            // wait(&status);
             jumlahNumber += addChildNumber[i];
-            printf("jumlah number %d\n", jumlahNumber);
+            printf("%d. (kons) pid= %d, parent= %d, baca= %d, jumlah= %d\n",i, getpid(), getppid(), addChildNumber[i], jumlahNumber);
         }
-
         break;
+    
     
     }
     return 0;
