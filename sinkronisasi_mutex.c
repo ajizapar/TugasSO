@@ -30,13 +30,17 @@ void *producer(void *vargp)
 
 void *consumer(void *vargp)
 {
+    int jumlah = 0;
     for (int i = MSGSIZE - 1; i >= 0; i--)
     {
         pthread_mutex_lock(&lock);
         int getNumber = buffer[i];
+        jumlah += getNumber;
         printf("(consumer) %d. pid= %d, membaca= %d\n", i, getpid(), getNumber);
         pthread_mutex_unlock(&lock);
     }
+    
+    printf("Jumlah akhir semua data pada batch ini= %d\n", jumlah);
 
     return NULL;
     
@@ -60,7 +64,7 @@ int main(int argc, char const *argv[])
         printf("\n mutex init gagal\n");
         return 1;
     }
-
+    
     for (int i = 0; i < jumlahProduser; i++)
     {
         // create thread for producer
